@@ -4,9 +4,10 @@ async function main() {
   const TestToken = await ethers.getContractFactory("TestToken");
   const token = await TestToken.deploy();
 
-  await token.deployed();
+  await token.waitForDeployment();
 
-  console.log("TestToken (STT) deployed to:", token.address);
+  const address = await token.getAddress();
+  console.log("TestToken (STT) deployed to:", address);
   console.log("Copy this address into the backend .env as CONTRACT_ADDRESS");
 }
 

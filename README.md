@@ -1,122 +1,97 @@
-# Skill Test: Smart Contract Development and Backend Integration
+# Skill Test: TestToken (60–90 minutes)
 
-This exercise evaluates your ability to:
+Implement a Solidity token so the provided Hardhat tests pass, then (if time) point the existing Node.js API at a local deploy.
 
-1. Develop a simple token contract in Solidity.
-2. Deploy that contract to a public Ethereum testnet.
-3. Connect a Node.js backend to the deployed contract with **ethers.js** or **web3.js**.
-
-The backend in this repository is already implemented. Your job is to write and deploy the contract, then point the backend at it with a valid `.env` file.
+**Do not rewrite the backend. Do not change the tests.** The tests are the spec.
 
 ---
 
-## Part 1: Smart Contract Development
+## What is already in this repo
 
-Work in the [`contract`](./contract) folder. Full setup and deploy steps are in [`contract/README.md`](./contract/README.md).
-
-### Requirements
-
-1. **Create a token contract**
-   - **Token name:** `TestToken`
-   - **Token symbol:** `STT`
-   - **Initial supply:** mint `1000` tokens to the contract deployer
-   - Implement:
-     - `mint(address to, uint256 amount)` — only the owner can mint
-     - `burn(uint256 amount)` — users burn tokens from their own balance
-     - `balanceOf(address account)` — returns the token balance of an address
-
-2. **Technical details**
-   - Solidity `^0.8.0`
-   - OpenZeppelin **Ownable** for owner-based access control
-   - Deploy to a public testnet such as **Sepolia**
-
-Token amounts used by the API are whole tokens. If you use decimals (18 is recommended with OpenZeppelin ERC20), implement `decimals()` and mint the initial supply as `1000 * 10 ** decimals()`.
-
-Start from `contract/contracts/TestToken.sol`. Keep the contract name `TestToken`.
+| Piece | Status |
+| --- | --- |
+| Express API (`/mint`, `/burn`, `/balance/:address`, `/health`) | Done — no code changes required |
+| Hardhat project, compile/deploy scripts | Done |
+| Contract tests in [`contract/test/TestToken.ts`](./contract/test/TestToken.ts) | Done — do not edit |
+| [`contract/contracts/TestToken.sol`](./contract/contracts/TestToken.sol) | Stub — **this is your work** |
 
 ---
 
-## Part 2: Node.js Backend
+## Your task
 
-The Express server is ready. After you deploy the contract, configure the backend and start it — no backend code changes are required.
+### 1. Implement `TestToken` (required)
 
-### Setup
+Work in [`contract`](./contract). Replace the stub in `contract/contracts/TestToken.sol`. Keep the contract name `TestToken`.
+
+| Requirement | Value |
+| --- | --- |
+| Name | `TestToken` |
+| Symbol | `STT` |
+| Decimals | `18` |
+| Solidity | `^0.8.20` |
+| Access control | OpenZeppelin `Ownable` (deployer is owner) |
+| Token standard | OpenZeppelin `ERC20` + `ERC20Burnable` |
+
+| Function | Behavior |
+| --- | --- |
+| constructor | Mint **1000** tokens to the deployer (`1000 * 10**18`) |
+| `mint(address to, uint256 amount)` | Owner only. Mints `amount` to `to`. |
+| `burn(uint256 amount)` | Caller burns `amount` from their own balance. |
+| `balanceOf(address account)` | Token balance of `account`. |
+| `name()` / `symbol()` / `decimals()` / `owner()` | As in the table above. |
+
+Amounts in the API are whole tokens. The contract uses 18 decimals, so 1 token is `1e18` base units. The backend already converts with `decimals()`.
+
+```bash
+cd contract
+npm install
+npm test
+```
+
+The stub fails all 7 tests on purpose. You are done with the required part when `npm test` is green.
+
+### 2. Run the API against a local node (if time)
+
+The backend is finished. After tests pass, you can deploy locally and call the HTTP endpoints.
+
+Terminal 1:
+
+```bash
+cd contract
+npm run node
+```
+
+Terminal 2:
+
+```bash
+cd contract
+npm run deploy:local
+```
+
+Copy the printed address into the repo-root `.env` as `CONTRACT_ADDRESS`. Use the Hardhat account #0 key from [`.env.example`](./.env.example) (local network only).
 
 ```bash
 npm install
 cp .env.example .env
-```
-
-Fill in `.env`:
-
-| Variable | Description |
-| --- | --- |
-| `PORT` | HTTP port (default `4972`) |
-| `RPC_PROVIDER_URL` | RPC URL for the testnet you deployed to |
-| `CONTRACT_ADDRESS` | Address printed by the Hardhat deploy script |
-| `WALLET_PRIVATE` | Private key of the **deployer / owner** wallet (used for `mint` and `burn`) |
-
-```bash
 npm start
 ```
 
-The server listens on `http://localhost:4972`. `GET /health` should return `{ "status": "OK" }`.
+`GET http://localhost:4972/health` → `{ "status": "OK" }`
 
-### API endpoints
+| Method | Path | Body / params |
+| --- | --- | --- |
+| `POST` | `/mint` | `{ "to": "0x…", "amount": 50 }` |
+| `POST` | `/burn` | `{ "amount": 20 }` — burns from the backend wallet |
+| `GET` | `/balance/:address` | — |
 
-#### 1. Mint tokens
-
-`POST /mint`
-
-```json
-{
-  "to": "0xRecipientAddress",
-  "amount": 50
-}
-```
-
-```json
-{
-  "message": "Tokens minted successfully",
-  "transactionHash": "0xTransactionHash"
-}
-```
-
-#### 2. Burn tokens
-
-`POST /burn`
-
-Burns from the backend wallet configured in `.env`.
-
-```json
-{
-  "amount": 20
-}
-```
-
-```json
-{
-  "message": "Tokens burned successfully",
-  "transactionHash": "0xTransactionHash"
-}
-```
-
-#### 3. Get balance
-
-`GET /balance/:address`
-
-```json
-{
-  "balance": 100
-}
-```
+Sepolia is optional and **not required** for this exercise.
 
 ---
 
-## Suggested workflow
+## How we evaluate
 
-1. Implement `TestToken` in `contract/contracts/TestToken.sol`.
-2. Install contract dependencies, set `contract/.env`, compile, and deploy to Sepolia.
-3. Copy the deployed address into the backend `.env` as `CONTRACT_ADDRESS`.
-4. Set `WALLET_PRIVATE` to the same key used to deploy, and `RPC_PROVIDER_URL` to a Sepolia RPC.
-5. Run `npm start` and call `/mint`, `/burn`, and `/balance/:address`.
+1. `contract` tests pass without edits to `test/TestToken.ts`.
+2. `mint` is owner-only; `burn` spends the caller’s balance; initial supply is 1000 tokens to the deployer.
+3. You used OpenZeppelin as specified, not a from-scratch ERC-20 unless you had a clear reason.
+
+Spend your time on the contract. The backend is there so you can demo mint/burn/balance if you finish early.

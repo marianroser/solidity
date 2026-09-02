@@ -1,14 +1,10 @@
 import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
-import process from "process";
+import "@nomicfoundation/hardhat-toolbox";
 
 dotenv.config();
 
-const accounts =
-  process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [];
+const accounts = process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [];
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -21,20 +17,17 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    hardhat: {},
+    localhost: {
+      url: "http://127.0.0.1:8545",
+    },
     sepolia: {
       url: process.env.RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
       accounts,
     },
-    goerli: {
-      url: process.env.RPC_URL || "https://rpc.ankr.com/eth_goerli",
-      accounts,
-    },
   },
   etherscan: {
-    apiKey: {
-      sepolia: process.env.ETHERSCAN_API_KEY || "",
-      goerli: process.env.ETHERSCAN_API_KEY || "",
-    },
+    apiKey: process.env.ETHERSCAN_API_KEY || "",
   },
 };
 

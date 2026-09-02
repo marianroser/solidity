@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./src/server.js",
     "dev": "nodemon ./src/server.js",
+    "test:contract": "npm test --prefix contract",
     "clean": "node -e \"const { rmSync } = require('fs'); rmSync('node_modules', { recursive: true, force: true }); rmSync('package-lock.json', { force: true });\""
   },
   "engines": {
