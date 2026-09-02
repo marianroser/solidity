@@ -39,8 +39,10 @@ npm test
 
 ## Local deploy (optional)
 
+This starts a local Ethereum chain, not the Express API.
+
 ```bash
-npm run node
+npm run chain
 ```
 
 In another terminal:

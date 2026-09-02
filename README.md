@@ -54,11 +54,11 @@ The stub fails all 7 tests on purpose. You are done with the required part when 
 
 The backend is finished. After tests pass, you can deploy locally and call the HTTP endpoints.
 
-Terminal 1:
+Terminal 1 — local Ethereum chain (Hardhat, not the Express server):
 
 ```bash
 cd contract
-npm run node
+npm run chain
 ```
 
 Terminal 2:

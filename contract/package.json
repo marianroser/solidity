@@ -5,9 +5,10 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "node": "hardhat node",
+    "chain": "hardhat node",
     "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
-    "deploy:sepolia": "hardhat run --network sepolia scripts/deploy.ts"
+    "deploy:sepolia": "hardhat run --network sepolia scripts/deploy.ts",
+    "clean": "node -e \"const { rmSync } = require('fs'); ['artifacts','cache','typechain','typechain-types','node_modules','package-lock.json'].forEach((p) => rmSync(p, { recursive: true, force: true }));\""
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
